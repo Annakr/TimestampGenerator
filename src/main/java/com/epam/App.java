@@ -11,15 +11,33 @@ public class App {
     public static final long BEGINNING_OF_THIS_DAY = new DateTime().withTimeAtStartOfDay().withHourOfDay(10).getMillis();
     public static final long LUNCH_TIME_BEGINNING = new DateTime().withTimeAtStartOfDay().withHourOfDay(14).getMillis();
     public static final long LUNCH_TIME_END = new DateTime().withTimeAtStartOfDay().withHourOfDay(15).getMillis();
+    public static final int DEFAULT_RANGE_IN_MILLIS = 200000;
+
+    private static TimestampGenerator timestampGenerator;
 
     /**
      * @param args first argument - path to file
      */
     public static void main(String... args) throws IOException {
         String filePath = getPathToFile(args);
-        long previousValue = readPreviousValueFromFile(filePath);
-        long newValue = generateNewValue(previousValue);
-        writeToFile(filePath, newValue);
+        int range = getRange(args);
+        timestampGenerator = new TimestampGenerator(range);
+        long previousValueInSeconds = readPreviousValueFromFile(filePath);
+        long previousValueInMillis = previousValueInSeconds * 100;
+        long newValueInMillis = generateNewValue(previousValueInMillis);
+        long newValueInSeconds = newValueInMillis / 100;
+        writeToFile(filePath, newValueInSeconds);
+    }
+
+    private static int getRange(String[] args) {
+        try {
+            String value = args[1];
+            return Integer.parseInt(value) * 100;
+        } catch (IndexOutOfBoundsException e) {
+            return DEFAULT_RANGE_IN_MILLIS;
+        } catch (NumberFormatException e) {
+            return DEFAULT_RANGE_IN_MILLIS;
+        }
     }
 
     private static String getPathToFile(String[] args) {
@@ -36,14 +54,14 @@ public class App {
             String firstLine = (String) lines.get(0);
             return Long.valueOf(firstLine);
         } catch (Exception e) {
-            return BEGINNING_OF_THIS_DAY;
+            return BEGINNING_OF_THIS_DAY / 100;
         }
     }
 
     private static long generateNewValue(Long previousValue) {
-        long newValue = new TimestampGenerator().nextValue(previousValue);
+        long newValue = timestampGenerator.nextValue(previousValue);
         if (isLunchTime(newValue))
-            return new TimestampGenerator().nextValue(LUNCH_TIME_END);
+            return timestampGenerator.nextValue(LUNCH_TIME_END);
         else return newValue;
     }
 

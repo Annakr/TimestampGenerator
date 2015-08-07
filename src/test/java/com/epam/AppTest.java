@@ -23,10 +23,10 @@ public class AppTest {
         int numberOfCommits = 168;
 
         for (int i = 0; i < numberOfCommits; i++) {
-            App.main(PATH_TO_FILE);
+            App.main(PATH_TO_FILE, "2000");
 
             long timestamp = App.readPreviousValueFromFile(PATH_TO_FILE);
-            System.out.println(getFormattedValue(timestamp));
+            System.out.println(getFormattedValue(timestamp * 100));
         }
 
 

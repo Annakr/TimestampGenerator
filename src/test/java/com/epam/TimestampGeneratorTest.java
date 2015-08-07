@@ -8,7 +8,7 @@ import static com.epam.TestUtils.getFormattedValue;
 
 public class TimestampGeneratorTest {
 
-    private TimestampGenerator timestampGenerator = new TimestampGenerator();
+    private TimestampGenerator timestampGenerator = new TimestampGenerator(App.DEFAULT_RANGE_IN_MILLIS);
 
     @Test
     public void test() {
